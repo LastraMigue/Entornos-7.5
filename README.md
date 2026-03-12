@@ -112,3 +112,57 @@ end
 * Muestra la misma interacción pero enfocada en los enlaces entre objetos.
 * Utiliza correctamente la numeración decimal (1, 1.1, 2...) para el orden de los mensajes.
 
+```mermaid
+graph LR
+
+%% Definición de los objetos
+Member((:Member))
+WebInterface((:WebInterface))
+ReservationManager((:ReservationManager))
+Database((:Database))
+
+%% --- FLUJO PRINCIPAL ---
+Member
+-- "1: confirmReservation()"
+--> WebInterface
+
+WebInterface
+-- "1.1: processReservation(memberId, classId)"
+--> ReservationManager
+
+ReservationManager
+-- "1.1.1: checkAvailability(classId)"
+--> Database
+
+Database
+-- "1.1.2: availabilityStatus"
+--> ReservationManager
+
+
+%% --- ALTERNATIVA A: Hay hueco (isAvailable=true) ---
+ReservationManager
+-- "1.1.3a: [isAvailable=true] blockSpot(memberId, classId)"
+--> Database
+
+Database
+-- "1.1.4a: [isAvailable=true] successConfirmation"
+--> ReservationManager
+
+ReservationManager
+-- "1.1.5a: [isAvailable=true] notifySuccess()"
+--> WebInterface
+
+WebInterface
+-- "1.1.6a: [isAvailable=true] showSuccessMessage()"
+--> Member
+
+
+%% --- ALTERNATIVA B: Clase llena (isAvailable=false) ---
+ReservationManager
+-- "1.1.3b: [isAvailable=false] notifyFullCapacity()"
+--> WebInterface
+
+WebInterface
+-- "1.1.4b: [isAvailable=false] showWaitlistOption()"
+--> Member
+```
