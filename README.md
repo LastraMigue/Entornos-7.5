@@ -6,7 +6,7 @@ El sistema debe permitir que los **Socios** se identifiquen y reserven clases (c
 **Tarea 1:** Elabora el **Diagrama de Casos de Uso**.
 
 * Identifica al menos 2 actores.
-* Incluye relaciones <<include>> (ej. para el login) y <<extend>> (ej. para la lista de espera).
+* Incluye relaciones &lt;&lt;include&gt;&gt; (ej. para el login) y &lt;&lt;extend&gt;&gt; (ej. para la lista de espera).
 * Define el límite del sistema.
 
 ```mermaid
@@ -40,4 +40,75 @@ UC_JoinWaitlist -.-> |&lt;&lt;extend&gt;&gt;| UC_BookClass
 ```
 
 ---
+
+## Fase 2: Diseño de la Interacción (Criterios c, d)
+Nos centramos en el momento exacto en que un Socio pulsa el botón "Confirmar Reserva".
+
+**Tarea 2:** Elabora un **Diagrama de Secuencia** para el proceso Confirmar Reserva.
+
+* **Objetos involucrados:** :Socio, :InterfazWeb, :GestorReservas, :BaseDatos.
+* **Flujo:** El socio envía la petición; el gestor comprueba disponibilidad en la BD; la BD responde; el gestor confirma y la interfaz muestra el mensaje de éxito.
+* **Nota:** Usa fragmentos combinados (alt o opt) para gestionar qué pasa si no hay hueco.
+
+```mermaid
+sequenceDiagram
+autonumber
+
+%% Actores y Objetos
+actor Member
+participant WebInterface
+participant ReservationManager
+participant Database
+
+Note over Member, Database: BOOKING CONFIRMATION FLOW
+
+%% El Socio inicia la acción y activa la Interfaz Web
+Member->>WebInterface: confirmReservation()
+activate WebInterface
+
+%% La interfaz llama al gestor y lo activa
+WebInterface->>ReservationManager: processReservation(memberId, classId)
+activate ReservationManager
+
+%% El gestor consulta la BD y la activa
+ReservationManager->>Database: checkAvailability(classId)
+activate Database
+    
+Note right of Database: We check if there are any vacancies
+
+%% La BD responde y se desactiva a sí misma
+Database-->>ReservationManager: availabilityStatus
+deactivate Database
+
+%% Fragmento combinado (Alternativa lógica)
+alt isAvailable == true
+    %% Camino A: Hay hueco
+    ReservationManager->>Database: blockSpot(memberId, classId)
+    activate Database
+        
+    Database-->>ReservationManager: successConfirmation
+    deactivate Database
+
+    %% El gestor responde a la interfaz
+    ReservationManager-->>WebInterface: notifySuccess()
+
+    %% La interfaz responde al socio
+    WebInterface-->>Member: showSuccessMessage()
+
+else isAvailable == false
+    %% Camino B: Clase llena
+    %% El gestor avisa a la interfaz
+    ReservationManager-->>WebInterface: notifyFullCapacity()
+    deactivate ReservationManager
+
+    %% La interfaz avisa al socio
+    WebInterface-->>Member: showWaitlistOption()
+    deactivate WebInterface
+end
+```
+
+**Tarea 3:** Elabora un **Diagrama de Comunicación** equivalente al anterior.
+
+* Muestra la misma interacción pero enfocada en los enlaces entre objetos.
+* Utiliza correctamente la numeración decimal (1, 1.1, 2...) para el orden de los mensajes.
 
