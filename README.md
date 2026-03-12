@@ -200,3 +200,33 @@ if_capacity --> RejectFull : [no capacity]
 BlockSpot --> SendConfirmationEmail
 SendConfirmationEmail --> [*]
 ```
+
+---
+
+## Fase 4: Ciclo de Vida del Objeto (Criterios g, h)
+Una reserva no es algo estático; cambia de estado según ocurren eventos.
+
+**Tarea 5:** Elabora un **Diagrama de Estados** para el objeto Reserva.
+
+* **Estados obligatorios:** Pendiente, Confirmada, Cancelada, Realizada (el socio asistió) y No Presentado (el socio no fue).
+* Indica qué eventos disparan las transiciones (ej: confirmar(), cancelar(), hacerCheckIn()).
+
+```mermaid
+stateDiagram-v2
+
+%% Estado inicial
+[*] --> Pending : create()
+
+%% Transiciones desde Pendiente
+Pending --> Confirmed : confirm()
+Pending --> Canceled : cancel()
+
+%% Transiciones desde Confirmada
+Confirmed --> Realized : checkIn()
+Confirmed --> NoShow : sessionEnded()
+
+%% Estados Finales
+Canceled --> [*]
+Realized --> [*]
+NoShow --> [*]
+```
