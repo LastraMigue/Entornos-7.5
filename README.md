@@ -166,3 +166,37 @@ WebInterface
 -- "1.1.4b: [isAvailable=false] showWaitlistOption()"
 --> Member
 ```
+
+---
+
+## Fase 3: Lógica del Proceso (Criterios e, f)
+Antes de confirmar la reserva, el gimnasio sigue un protocolo interno de seguridad y pagos.
+
+**Tarea 4:** Elabora un **Diagrama de Actividades** para el flujo Validación de Reserva.
+
+* **Pasos:** 1. Recibir solicitud -> 2. ¿Socio tiene cuota pagada? (Decisión) -> 3. ¿Hay aforo? (Decisión) -> 4. Bloquear plaza -> 5. Enviar email de confirmación.
+* Usa correctamente los símbolos de inicio, fin, acciones y rombos de decisión.
+
+```mermaid
+stateDiagram-v2
+    
+%% Decisiones
+state if_fee <<choice>>
+state if_capacity <<choice>>
+
+%% Flujo
+[*] --> ReceiveRequest
+ReceiveRequest --> if_fee
+    
+%% Primera Decisión: Cuota
+if_fee --> if_capacity : [fee paid]
+if_fee --> RejectUnpaid : [unpaid fee]
+    
+%% Segunda Decisión: Aforo
+if_capacity --> BlockSpot : [capacity]
+if_capacity --> RejectFull : [no capacity]
+    
+%% Finalización exitosa
+BlockSpot --> SendConfirmationEmail
+SendConfirmationEmail --> [*]
+```
