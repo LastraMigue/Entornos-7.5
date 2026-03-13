@@ -112,6 +112,8 @@ end
 * Muestra la misma interacción pero enfocada en los enlaces entre objetos.
 * Utiliza correctamente la numeración decimal (1, 1.1, 2...) para el orden de los mensajes.
 
+### RESERVA EXITOSA
+
 ```mermaid
 graph LR
 
@@ -121,49 +123,60 @@ WebInterface((:WebInterface))
 ReservationManager((:ReservationManager))
 Database((:Database))
 
-%% --- FLUJO PRINCIPAL ---
-Member
--- "1: confirmReservation()"
+%% --- FLUJO DE RESERVA EXITOSA ---
+Member -- "1: confirmReservation()"
 --> WebInterface
 
-WebInterface
--- "1.1: processReservation(memberId, classId)"
+WebInterface -- "1.1: processReservation(memberId, classId)"
 --> ReservationManager
 
-ReservationManager
--- "1.1.1: checkAvailability(classId)"
+ReservationManager -- "1.1.1: checkAvailability(classId)"
 --> Database
 
-Database
--- "1.1.2: availabilityStatus"
+Database -- "1.1.2: availabilityStatus"
 --> ReservationManager
 
-
-%% --- ALTERNATIVA A: Hay hueco (isAvailable=true) ---
-ReservationManager
--- "1.1.3a: [isAvailable=true] blockSpot(memberId, classId)"
+ReservationManager -- "1.1.3: blockSpot(memberId, classId)"
 --> Database
 
-Database
--- "1.1.4a: [isAvailable=true] successConfirmation"
+Database -- "1.1.4: successConfirmation"
 --> ReservationManager
 
-ReservationManager
--- "1.1.5a: [isAvailable=true] notifySuccess()"
+ReservationManager -- "1.1.5: notifySuccess()"
 --> WebInterface
 
-WebInterface
--- "1.1.6a: [isAvailable=true] showSuccessMessage()"
+WebInterface -- "1.1.6: showSuccessMessage()"
 --> Member
+```
 
+### CLASE LLENA
 
-%% --- ALTERNATIVA B: Clase llena (isAvailable=false) ---
-ReservationManager
--- "1.1.3b: [isAvailable=false] notifyFullCapacity()"
+```mermaid
+graph LR
+
+%% Definición de los objetos
+Member((:Member))
+WebInterface((:WebInterface))
+ReservationManager((:ReservationManager))
+Database((:Database))
+
+%% --- FLUJO DE LISTA DE ESPERA ---
+Member -- "1: confirmReservation()"
 --> WebInterface
 
-WebInterface
--- "1.1.4b: [isAvailable=false] showWaitlistOption()"
+WebInterface -- "1.1: processReservation(memberId, classId)"
+--> ReservationManager
+
+ReservationManager -- "1.1.1: checkAvailability(classId)"
+--> Database
+
+Database -- "1.1.2: availabilityStatus"
+--> ReservationManager
+
+ReservationManager -- "1.1.3: notifyFullCapacity()"
+--> WebInterface
+
+WebInterface -- "1.1.4: showWaitlistOption()"
 --> Member
 ```
 
